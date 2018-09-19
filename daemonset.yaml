@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: openvswitch-exec
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      name: openvswitch-exec
+  template:
+    metadata:
+      labels:
+        name: openvswitch-exec
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      containers:
+      - name: openvswitch-exec
+        image: sdnvortex/openvswitch-exec:latest
+        command: ["/bin/sh"]
+        args: ["-c", "while true; do sleep 3600;done"]
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /var/run/docker/netns:shared
+          name: docker-ns
+          #mountPropagation: Bidirectional
+        - mountPath: /var/run/openvswitch/db.sock
+          name: ovs-sock
+      volumes:
+      - name: docker-ns
+        hostPath:
+          path: /run/docker/netns
+      - name: ovs-sock #since the UNIX version only add-port, the db.sock is enough
+        hostPath:
+          path: /run/openvswitch/db.sock
+      hostNetwork: true
