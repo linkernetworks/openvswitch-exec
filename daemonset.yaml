@@ -19,7 +19,7 @@ spec:
       - name: openvswitch-exec
         image: sdnvortex/openvswitch-exec:latest
         command: ["tail"]
-        args: ["-f", "tmp.log"]
+        args: ["-f", "/etc/hostname"]
         securityContext:
           privileged: true
         volumeMounts:
@@ -29,4 +29,3 @@ spec:
       - name: ovs-sock #since the UNIX version only add-port, the db.sock is enough
         hostPath:
           path: /run/openvswitch/db.sock
-      hostNetwork: true
